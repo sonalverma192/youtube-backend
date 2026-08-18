@@ -28,10 +28,7 @@ const signup = async (req, res) => {
         const result = await newUser.save()
 
         res.status(200).json({
-            newUser: {
-                channelName: result.channelName,
-                email: result.email
-            }
+            newUser: result
         })
     }
     catch (err) {
