@@ -64,7 +64,7 @@ const login = async (req, res) => {
 
         res.status(200).json({
             Token: appToken,
-            channel:user
+            channel:user[0]
         })
     }
     catch (err) {
