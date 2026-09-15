@@ -260,5 +260,20 @@ const videoByChannelId = async(req,res)=>{
     }
 }
 
+const AllVideos = async(req,res)=>{
+    try
+    {
+        const videos = await Video.find()
+        res.status(200).json({
+            videos
+        })
+    }
+    catch(err)
+    {
+        console.log(err)
+        res.status(500).json(err)
+    }
+}
 
-module.exports = { upload, like, dislike, videoById, updateVideo ,deleteVideo, videoByChannelId }
+
+module.exports = { upload, like, dislike, videoById, updateVideo ,deleteVideo, videoByChannelId, AllVideos}
