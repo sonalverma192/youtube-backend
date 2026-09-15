@@ -34,7 +34,7 @@ const upload = async (req, res) => {
             thumbnailId: thumbnailUpload.public_id,
             thumbnailUrl: thumbnailUpload.secure_url,
             uploadedBy: tokenData.userId,
-            tags: req.body.tags,
+            tags: JSON.parse(req.body.tags),
             category: req.body.category
         })
 
