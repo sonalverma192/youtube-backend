@@ -6,7 +6,7 @@ const {upload,
     videoById,
     deleteVideo,
     updateVideo,
-    videoByChannelId,
+    // videoByChannelId,
     AllVideos
 } = require('../controller/videoController')
 
@@ -17,7 +17,7 @@ router.post('/dislike/:videoId',dislike)
 router.get('/videoById/:videoId',videoById)
 router.delete('/deleteVideo/:videoId',deleteVideo)
 router.put('/updateVideo/:videoId',updateVideo)
-router.get('/getAllVideo/:channelId',videoByChannelId)
+// router.get('/getAllVideo/:channelId',videoByChannelId)
 router.get('/AllVideos',AllVideos)
 
 

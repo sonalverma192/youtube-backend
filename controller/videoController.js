@@ -276,4 +276,4 @@ const AllVideos = async(req,res)=>{
 }
 
 
-module.exports = { upload, like, dislike, videoById, updateVideo ,deleteVideo, videoByChannelId, AllVideos}
+module.exports = { upload, like, dislike, videoById, updateVideo ,deleteVideo, AllVideos}
