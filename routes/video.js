@@ -12,8 +12,8 @@ const {upload,
 
 
 router.post('/videoUpload',upload)
-router.post('/like/:videoId',like)
-router.post('/dislike/:videoId',dislike)
+router.put('/like/:videoId',like)
+router.put('/dislike/:videoId',dislike)
 router.get('/videoById/:videoId',videoById)
 router.delete('/deleteVideo/:videoId',deleteVideo)
 router.put('/updateVideo/:videoId',updateVideo)

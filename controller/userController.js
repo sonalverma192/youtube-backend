@@ -28,6 +28,7 @@ const signup = async (req, res) => {
 
         res.status(200).json({
             newUser: result
+            
         })
     }
     catch (err) {
@@ -68,95 +69,12 @@ const login = async (req, res) => {
     catch (err) {
         console.log(err)
         res.status(500).json({
-            error: 'Something is wrong'
+            error: err
         })
     }
 }
 
 const subscriber = async (req, res) => {
-    try {
-        const channelId = req.params.channelId
-
-        const authHeader = req.headers.authorization
-
-        if (!authHeader) {
-            return res.status(401).json({
-                msg: "Authorization token required"
-            })
-        }
-
-        const token = authHeader.split(" ")[1]
-
-        if (!token) {
-            return res.status(401).json({
-                msg: "Invalid token"
-            })
-        }
-
-        const tokenData = jwt.verify(
-            token,
-            process.env.SEC_KEY
-        )
-
-        const channel = await User.findById(channelId)
-
-        if (!channel) {
-            return res.status(404).json({
-                msg: "Channel not found"
-            })
-        }
-
-        const user = await User.findById(tokenData.userId)
-
-        if (!user) {
-            return res.status(404).json({
-                msg: "User not found"
-            })
-        }
-
-        if (channel._id.toString() === user._id.toString()) {
-            return res.status(400).json({
-                msg: "You can't subscribe yourself"
-            })
-        }
-
-        const alreadySubscribed = channel.subscribers.some(
-            subscriberId =>
-                subscriberId.toString() === user._id.toString()
-        )
-
-        if (alreadySubscribed) {
-            return res.status(400).json({
-                msg: "Already Subscribed"
-            })
-        }
-
-        channel.subscribers.push(user._id)
-        user.subscribedTo.push(channel._id)
-
-        await channel.save()
-        await user.save()
-
-        return res.status(200).json({
-            msg: "Subscribed successfully"
-        })
-
-    } catch (err) {
-
-        console.log("========== SUBSCRIBE ERROR ==========")
-        console.log("NAME:", err.name)
-        console.log("MESSAGE:", err.message)
-        console.log("STACK:", err.stack)
-        console.log("=====================================")
-
-        return res.status(500).json({
-            msg: "Subscribe failed",
-            error: err.message
-        })
-    }
-}
-
-const unsubscribe = async (req, res) => {
     try {
         const channel = await User.findById(req.params.channelId)
         const token = req.headers.authorization.split(" ")[1]
@@ -176,12 +94,54 @@ const unsubscribe = async (req, res) => {
         const user = await User.findById(tokenData.userId)
 
         const isSubscribed = await channel.subscribers.includes(tokenData.userId)
-        if (!isSubscribed) {
+        if (isSubscribed) {
+            return res.status(200).json({
+                msg: "already subscribe"
+            })
+        }
+        channel.subscribers = await channel.subscribers.includes(tokenData.userId)
+        await channel.save()
+        user.subscribedTo = await user.subscribedTo.includes(userId => userId != req.params.channelId)
+        await user.save()
+
+        res.status(200).json({
+            msg: "Subscribe"
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+const unsubscribe = async (req, res) => {
+    try {
+        const channel = await User.findById(req.params.channelId)
+        const token = req.headers.authorization.split(" ")[1]
+        const tokenData = await jwt.verify(token, process.env.SEC_KEY)
+
+        if (!channel) {
             return res.status(500).json({
+                msg: 'Channel not exist'
+            })
+        }
+
+        if (channel._id == tokenData.userId) {
+            return res.status(200).json({
+                msg: "you can't unsubscribe yourself"
+            })
+        }
+        const user = await User.findById(tokenData.userId)
+
+        const isSubscribed = await channel.subscribers.includes(tokenData.userId)
+        if (!isSubscribed) {
+            return res.status(200).json({
                 msg: "Not Subscribed"
             })
         }
-        channel.subscribers = await channel.subscribers.filter(userId => userId != tokenData.userId)
+        channel.subscribers = await channel.subscribers.filter(userId => userId.toString() != tokenData.userId)
         await channel.save()
         user.subscribedTo = await user.subscribedTo.filter(userId => userId != req.params.channelId)
         await user.save()

@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
 const cloudinary = require('../configue/cloudinary')
+const e = require('express')
 
 const upload = async (req, res) => {
     try {
@@ -54,28 +55,33 @@ const upload = async (req, res) => {
 }
 
 const like = async (req, res) => {
+    console.log("========== LIKE API HIT ==========");
     try {
         const token = req.headers.authorization.split(" ")[1]
         const tokenData = await jwt.verify(token, process.env.SEC_KEY)
+    
         console.log(tokenData.userId)
+
         const video = await Video.findById(req.params.videoId)
+       
         if (!video) {
             return res.status(500).json({
                 msg: 'Video Not Found'
             })
         }
 
-        if (video.likedBy.some(id => id.toString() === tokenData.userId)) {
+        if (video.likedBy.includes(tokenData.userId)) {
             video.likeCount -= 1
             video.likedBy = video.likedBy.filter(userId => userId.toString() !== tokenData.userId)
             await video.save()
-            return res.status(500).json({
+            return res.status(200).json({
                 likeCount: video.likeCount,
-                msg: video
+                msg: video,
+                likeStatus: false
             })
         }
 
-        if (video.dislikedBy.some(id => id.toString() === tokenData.userId)) {
+        else if (video.dislikedBy.includes(tokenData.userId)) {
             video.dislikeCount -= 1
             video.dislikedBy = video.dislikedBy.filter(userId => userId.toString() !== tokenData.userId)
 
@@ -83,9 +89,10 @@ const like = async (req, res) => {
             video.likedBy.push(tokenData.userId)
 
             await video.save()
-            return res.status(500).json({
+            return res.status(200).json({
                 likeCount: video.likeCount,
-                msg: video
+                msg: video,
+                likeStatus : true
             })
         }
 
@@ -96,7 +103,8 @@ const like = async (req, res) => {
         console.log(video.likedBy)
         return res.status(200).json({
             likeCount: video.likeCount,
-            video: video
+            video: video,
+            likeStatus: true
         })
     }
     catch (err) {
@@ -119,17 +127,18 @@ const dislike = async (req, res) => {
             })
         }
 
-        if (video.dislikedBy.some(id => id.toString() === tokenData.userId)) {
+        if (video.dislikedBy.includes(tokenData.userId)) {
             video.dislikeCount -= 1
             video.dislikedBy = video.dislikedBy.filter(userId => userId.toString() !== tokenData.userId)
             await video.save()
-            return res.status(500).json({
+            return res.status(200).json({
                 dislikeCount: video.dislikeCount,
-                video: video
+                video: video,
+                dislikeStatus : false
             })
         }
 
-        if (video.likedBy.some(id => id.toString() === tokenData.userId)) {
+        if (video.likedBy.includes(tokenData.userId)) {
             video.likeCount -= 1
             video.likedBy = video.likedBy.filter(userId => userId.toString() !== tokenData.userId)
 
@@ -137,9 +146,10 @@ const dislike = async (req, res) => {
             video.dislikedBy.push(tokenData.userId)
 
             await video.save()
-            return res.status(500).json({
+            return res.status(200).json({
                 dislikeCount: video.dislikeCount,
-                video: video
+                video: video,
+                dislikeStatus : true
             })
         }
 
@@ -149,7 +159,8 @@ const dislike = async (req, res) => {
         await video.save()
         return res.status(200).json({
             dislikeCount: video.dislikeCount,
-            video: video
+            video: video,
+            dislikeStatus:true
         })
 
     }
@@ -164,18 +175,45 @@ const dislike = async (req, res) => {
 const videoById = async (req, res) => {
     try {
         const videos = await Video.findById(req.params.videoId).populate('uploadedBy', '_id channelName profilePicUrl subscribers')
-
+        
         if (!videos) {
             return res.status(500).json({
                 error: 'Video Not Found'
             })
         }
 
+        var likeStatus = false
+        var dislikeStatus = false
+        var subscribeStatus = false
+
+        const token = await req.headers.authorization
+
+        if(token)
+        {
+          const Token = token.split(" ")[1]
+          const tokenData = await jwt.verify(Token, process.env.SEC_KEY)
+          if(videos.dislikedBy.includes(tokenData.userId))
+          {
+            var dislikeStatus = true
+          }
+          else if(videos.likedBy.includes(tokenData.userId))
+          {
+            var likeStatus = true
+          }
+          if (videos.uploadedBy.subscribers.includes(tokenData.userId))
+          {
+            var subscribeStatus = true
+          }
+        }
+
         videos.view += 1
         await videos.save()
         res.status(200).json({
             msg: videos.view,
-            video: videos
+            video: videos,
+            like: likeStatus,
+            dislike: dislikeStatus,
+            subscribed: subscribeStatus
         })
 
     }
