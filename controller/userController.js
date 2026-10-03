@@ -99,9 +99,9 @@ const subscriber = async (req, res) => {
                 msg: "already subscribe"
             })
         }
-        channel.subscribers = await channel.subscribers.includes(tokenData.userId)
+        channel.subscribers = await channel.subscribers.push(tokenData.userId)
         await channel.save()
-        user.subscribedTo = await user.subscribedTo.includes(userId => userId != req.params.channelId)
+        user.subscribedTo = await user.subscribedTo.push(userId => userId != req.params.channelId)
         await user.save()
 
         res.status(200).json({
