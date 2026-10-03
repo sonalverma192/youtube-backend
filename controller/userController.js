@@ -141,9 +141,9 @@ const unsubscribe = async (req, res) => {
                 msg: "Not Subscribed"
             })
         }
-        channel.subscribers = await channel.subscribers.filter(userId => userId.toString() != tokenData.userId)
+        channel.subscribers.filter(userId => userId.toString() != tokenData.userId)
         await channel.save()
-        user.subscribedTo = await user.subscribedTo.filter(req.params.channelId)
+        user.subscribedTo.filter(req.params.channelId)
         await user.save()
 
         res.status(200).json({
