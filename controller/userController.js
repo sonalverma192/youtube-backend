@@ -101,7 +101,7 @@ const subscriber = async (req, res) => {
         }
         channel.subscribers = await channel.subscribers.push(tokenData.userId)
         await channel.save()
-        user.subscribedTo = await user.subscribedTo.push(userId => userId != req.params.channelId)
+        user.subscribedTo = await user.subscribedTo.push(req.params.channelId)
         await user.save()
 
         res.status(200).json({
@@ -143,7 +143,7 @@ const unsubscribe = async (req, res) => {
         }
         channel.subscribers = await channel.subscribers.filter(userId => userId.toString() != tokenData.userId)
         await channel.save()
-        user.subscribedTo = await user.subscribedTo.filter(userId => userId != req.params.channelId)
+        user.subscribedTo = await user.subscribedTo.filter(req.params.channelId)
         await user.save()
 
         res.status(200).json({
