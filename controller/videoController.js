@@ -192,15 +192,15 @@ const videoById = async (req, res) => {
         {
           const Token = token.split(" ")[1]
           const tokenData = await jwt.verify(Token, process.env.SEC_KEY)
-          if(videos.dislikedBy.includes(tokenData.userId))
+          if(videos.dislikedBy.includes(tokenData.userId.toString()))
           {
             var dislikeStatus = true
           }
-          else if(videos.likedBy.includes(tokenData.userId))
+          else if(videos.likedBy.includes(tokenData.userId.toString()))
           {
             var likeStatus = true
           }
-          if (videos.uploadedBy.subscribers.includes(tokenData.userId))
+          if (videos.uploadedBy.subscribers.includes(tokenData.userId.toString()))
           {
             var subscribeStatus = true
           }
