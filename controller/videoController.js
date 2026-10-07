@@ -55,7 +55,6 @@ const upload = async (req, res) => {
 }
 
 const like = async (req, res) => {
-    console.log("========== LIKE API HIT ==========");
     try {
         const token = req.headers.authorization.split(" ")[1]
         const tokenData = await jwt.verify(token, process.env.SEC_KEY)

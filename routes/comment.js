@@ -12,7 +12,7 @@ route.post('/comment/:videoId',commentPost)
 route.get('/:videoId',getAllCommentByVideoId)
 route.put('/editComment/:commentId',editComment)
 route.delete('/deleteComment/:commentId',deleteComment)
-route.post('/like/:commentId',likeComment)
+route.put('/like/:commentId',likeComment)
 
 
 

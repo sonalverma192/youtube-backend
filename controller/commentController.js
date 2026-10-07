@@ -23,7 +23,7 @@ const commentPost = async (req, res) => {
 
         await newComment.save();
         res.status(200).json({
-            comment : newComment,
+            comment: newComment,
         })
     }
     catch (err) {
@@ -43,9 +43,36 @@ const getAllCommentByVideoId = async (req, res) => {
             })
         }
 
-        const comments = await Comment.find({videoId:req.params.videoId}).populate('commentBy', 'channelName profilePicUrl')
+        const comments = await Comment.find({ videoId: req.params.videoId }).populate('commentBy', 'channelName profilePicUrl')
+        const token = req.headers.authorization
+        if (token) {
+            const Token = token.split(" ")[1]
+            const tokenData = await jwt.verify(Token, process.env.SEC_KEY)
+
+            const result = comments.map(comment => (
+                {
+                    id: comment._id,
+                    commentText: comment.commentText,
+                    channelName: comment.commentBy.channelName,
+                    profilePicUrl: comment.commentBy.profilePicUrl,
+                    likeStatus: comment.likedBy.some(id => id.toString() == tokenData.userId),
+                    dislikeStatus : comment.dislikeby.some(id => id.toString() == tokenData.userId)
+                }
+            ))
+
+            return res.status(200).json({
+                result: result
+            })
+        }
+        else {
+            return res.status(200).json({
+                likeStatus: false,
+                dislikeStatus : false
+            })
+        }
+
         res.status(200).json({
-        comment: comments
+            comment: comments
         })
     }
     catch (err) {
@@ -56,76 +83,69 @@ const getAllCommentByVideoId = async (req, res) => {
     }
 }
 
-const editComment = async(req,res)=>{
-    try
-    {
+const editComment = async (req, res) => {
+    try {
         const token = req.headers.authorization.split(" ")[1]
         const tokenData = await jwt.verify(token, process.env.SEC_KEY)
 
         const user = await Comment.findById(tokenData.userId)
         const commentUser = await Comment.findById(req.params.commentId)
 
-        if(tokenData.userId == commentUser.commentBy)
-        {
-           commentUser.commentText = req.body.commentText
-           await commentUser.save()
-           res.status(200).json({
-            msg:'comment updated',
-            comment:commentUser
-           })
+        if (tokenData.userId == commentUser.commentBy) {
+            commentUser.commentText = req.body.commentText
+            await commentUser.save()
+            res.status(200).json({
+                msg: 'comment updated',
+                comment: commentUser
+            })
         }
 
         res.status(500).json({
-            msg:'You have no right to edit the comment'
+            msg: 'You have no right to edit the comment'
         })
     }
-    catch(err)
-    {
+    catch (err) {
         console.log(err)
         res.status(500).json({
-            error:err
+            error: err
         })
     }
 }
 
-const deleteComment = async(req,res)=>{
-    try
-    {
+const deleteComment = async (req, res) => {
+    try {
         const token = req.headers.authorization.split(" ")[1]
         const tokenData = await jwt.verify(token, process.env.SEC_KEY)
 
         const comment = await Comment.findById(req.params.commentId)
         const video = await Video.findById(comment.videoId)
 
-        if(tokenData.userId == comment.commentBy || tokenData.userId == video.userId)
-        {
+        if (tokenData.userId == comment.commentBy || tokenData.userId == video.userId) {
             const comment = await Comment.findByIdAndDelete(req.params.commentId)
             res.status(200).json({
-                msg:"comment deleted"
+                msg: "comment deleted"
             })
         }
 
         res.status(500).json({
-            msg:'you dont have access to delete thw comment'
+            msg: 'you dont have access to delete thw comment'
         })
     }
-    catch(err)
-    {
+    catch (err) {
         console.log(err)
         res.status(500).json({
-            error : err
+            error: err
         })
     }
 }
 
-const likeComment = async(req,res)=>{
-    try
-    {
+const likeComment = async (req, res) => {
+    try {
         const token = req.headers.authorization.split(" ")[1]
         const tokenData = await jwt.verify(token, process.env.SEC_KEY)
         const comment = await Comment.findById(req.params.commentId)
 
-        if (comment.likedBy.some(id => id.toString() === tokenData.userId)) {
+        if (comment.likedBy.includes(tokenData.userId)) {
             comment.like -= 1
             comment.likedBy = comment.likedBy.filter(
                 id => id.toString() !== tokenData.userId
@@ -142,11 +162,10 @@ const likeComment = async(req,res)=>{
             comment
         })
     }
-    catch(err)
-    {
+    catch (err) {
         console.log(err)
         res.status(500).json({
-            error : err
+            error: err
         })
     }
 }
