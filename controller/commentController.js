@@ -56,7 +56,7 @@ const getAllCommentByVideoId = async (req, res) => {
                     channelName: comment.commentBy.channelName,
                     profilePicUrl: comment.commentBy.profilePicUrl,
                     likeStatus: comment.likedBy.some(id => id.toString() == tokenData.userId),
-                    dislikeStatus : comment.dislikeby.some(id => id.toString() == tokenData.userId)
+                    dislikeStatus: comment.dislikeby.some(id => id.toString() == tokenData.userId)
                 }
             ))
 
@@ -65,15 +65,22 @@ const getAllCommentByVideoId = async (req, res) => {
             })
         }
         else {
-            return res.status(200).json({
-                likeStatus: false,
-                dislikeStatus : false
+            const result = comments.map(comment => (
+                {
+                    id: comment._id,
+                    commentText: comment.commentText,
+                    channelName: comment.commentBy.channelName,
+                    profilePicUrl: comment.commentBy.profilePicUrl,
+                    likeStatus: false,
+                    dislikeStatus: false
+                }
+            ))
+             return res.status(200).json({
+                result: result
             })
         }
 
-        res.status(200).json({
-            comment: comments
-        })
+        
     }
     catch (err) {
         console.log(err)
