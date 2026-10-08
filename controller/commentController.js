@@ -162,7 +162,8 @@ const likeComment = async (req, res) => {
             await comment.save();
             return res.status(200).json({
                 like:comment.like,
-                comment:comment
+                comment:comment,
+                likeStatus:false
             });
         }
 
@@ -176,7 +177,8 @@ const likeComment = async (req, res) => {
             await comment.save()
             res.status(200).json({
                 like:comment.like,
-                comment:comment
+                comment:comment,
+                likeStatus:true
             })
         }
         comment.like += 1
@@ -184,7 +186,8 @@ const likeComment = async (req, res) => {
         await comment.save();
         res.status(200).json({
             like:comment.like,
-            comment:comment
+            comment:comment,
+            likeStatus:true
         })
     }
     catch (err) {
@@ -210,6 +213,7 @@ const dislikeComment = async (req,res)=>{
             return res.status(200).json({
                 dislike:comment.dislike,
                 comment: comment,
+                dislikeStatus:false
             });
         }
 
@@ -223,7 +227,8 @@ const dislikeComment = async (req,res)=>{
             await comment.save()
             return res.status(200).json({
                 dislike:comment.dislike,
-                comment:comment
+                comment:comment,
+                dislikeStatus:true
             })
         }
         comment.dislike += 1
@@ -231,7 +236,8 @@ const dislikeComment = async (req,res)=>{
         await comment.save();
         res.status(200).json({
             dislike:comment.dislike,
-            comment:comment
+            comment:comment,
+            dislikeStatus:true
         })
     }
     catch (err) {
