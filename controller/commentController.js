@@ -51,12 +51,14 @@ const getAllCommentByVideoId = async (req, res) => {
 
             const result = comments.map(comment => (
                 {
-                    id: comment._id,
+                    commentId: comment._id,
                     commentText: comment.commentText,
                     channelName: comment.commentBy.channelName,
                     profilePicUrl: comment.commentBy.profilePicUrl,
                     likeStatus: comment.likedBy.some(id => id.toString() == tokenData.userId),
-                    dislikeStatus: comment.dislikedBy.some(id => id.toString() == tokenData.userId)
+                    commentLike : comment.like,
+                    dislikeStatus: comment.dislikedBy.some(id => id.toString() == tokenData.userId),
+                    commentDislike : comment.dislike
                 }
             ))
 
