@@ -7,7 +7,7 @@ const commentSchema = new mongoose.Schema({
     like:{type:Number,default:0},
     dislike:{type:Number,default:0},
     likedBy:[{type:mongoose.Types.ObjectId,ref:'user'}],
-    dislikeby:[{type:mongoose.Types.ObjectId,ref:'user'}],
+    dislikedBy:[{type:mongoose.Types.ObjectId,ref:'user'}],
 },{timestamps:true}
 )
 

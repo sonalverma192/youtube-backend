@@ -56,7 +56,7 @@ const getAllCommentByVideoId = async (req, res) => {
                     channelName: comment.commentBy.channelName,
                     profilePicUrl: comment.commentBy.profilePicUrl,
                     likeStatus: comment.likedBy.some(id => id.toString() == tokenData.userId),
-                    dislikeStatus: comment.dislikeby.some(id => id.toString() == tokenData.userId)
+                    dislikeStatus: comment.dislikedBy.some(id => id.toString() == tokenData.userId)
                 }
             ))
 
@@ -159,14 +159,77 @@ const likeComment = async (req, res) => {
             );
             await comment.save();
             return res.status(200).json({
-                comment
+                like:comment.like,
+                comment:comment
             });
+        }
+
+        else if (comment.dislikedBy.includes(tokenData.userId))
+        {
+            comment.dislike -= 1
+            comment.dislikedBy = comment.dislikedBy.filter(id => id.toString() !== tokenData.userId)
+            
+            comment.like += 1
+            comment.likedBy.push(tokenData.userId)
+            await comment.save()
+            res.status(200).json({
+                like:comment.like,
+                comment:comment
+            })
         }
         comment.like += 1
         comment.likedBy.push(tokenData.userId);
         await comment.save();
         res.status(200).json({
-            comment
+            like:comment.like,
+            comment:comment
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+const dislikeComment = async (req,res)=>{
+     try {
+        const token = req.headers.authorization.split(" ")[1]
+        const tokenData = await jwt.verify(token, process.env.SEC_KEY)
+        const comment = await Comment.findById(req.params.commentId)
+
+        if (comment.dislikedBy.includes(tokenData.userId)) {
+            comment.dislike -= 1
+            comment.dislikedBy = comment.dislikedBy.filter(
+                id => id.toString() !== tokenData.userId
+            );
+            await comment.save();
+            return res.status(200).json({
+                dislike:comment.dislike,
+                comment: comment,
+            });
+        }
+
+        else if (comment.likedBy.includes(tokenData.userId))
+        {
+            comment.like -= 1 
+            comment.likedBy = comment.likedBy.filter(id => id.toString() !== tokenData.userId);
+
+            comment.dislike += 1
+            comment.dislikedBy.push(tokenData.userId)
+            await comment.save()
+            return res.status(200).json({
+                dislike:comment.dislike,
+                comment:comment
+            })
+        }
+        comment.dislike += 1
+        comment.dislikedBy.push(tokenData.userId);
+        await comment.save();
+        res.status(200).json({
+            dislike:comment.dislike,
+            comment:comment
         })
     }
     catch (err) {
@@ -178,4 +241,4 @@ const likeComment = async (req, res) => {
 }
 
 
-module.exports = { commentPost, getAllCommentByVideoId, editComment, deleteComment, likeComment }
+module.exports = { commentPost, getAllCommentByVideoId, editComment, deleteComment, likeComment, dislikeComment }
