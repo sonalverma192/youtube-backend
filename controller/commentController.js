@@ -69,7 +69,7 @@ const getAllCommentByVideoId = async (req, res) => {
         else {
             const result = comments.map(comment => (
                 {
-                    id: comment._id,
+                    commentId: comment._id,
                     commentText: comment.commentText,
                     channelName: comment.commentBy.channelName,
                     profilePicUrl: comment.commentBy.profilePicUrl,
