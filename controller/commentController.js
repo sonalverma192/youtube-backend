@@ -53,6 +53,7 @@ const getAllCommentByVideoId = async (req, res) => {
                 {
                     commentId: comment._id,
                     commentText: comment.commentText,
+                    commentBy : comment.commentBy._id,
                     channelName: comment.commentBy.channelName,
                     profilePicUrl: comment.commentBy.profilePicUrl,
                     likeStatus: comment.likedBy.some(id => id.toString() == tokenData.userId),
