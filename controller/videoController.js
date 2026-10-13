@@ -283,19 +283,19 @@ const deleteVideo = async (req, res) => {
     }
 }
 
-// const videoByChannelId = async(req,res)=>{
-//     try
-//     {
-//         const videos = await Video.find(req.params.ChannelId)
-//         res.status(200).json({
-//             videos
-//         })
-//     }
-//     catch (err) {
-//         console.log(err)
-//         res.status(500).json(err)
-//     }
-// }
+const videoByChannelId = async(req,res)=>{
+    try
+    {
+        const videos = await Video.find(req.params.ChannelId)
+        res.status(200).json({
+            videos
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json(err)
+    }
+}
 
 const AllVideos = async(req,res)=>{
     try
@@ -313,4 +313,4 @@ const AllVideos = async(req,res)=>{
 }
 
 
-module.exports = { upload, like, dislike, videoById, updateVideo ,deleteVideo, AllVideos}
+module.exports = { upload, like, dislike, videoById, updateVideo, videoByChannelId ,deleteVideo, AllVideos}
