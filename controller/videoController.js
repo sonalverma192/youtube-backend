@@ -286,7 +286,7 @@ const deleteVideo = async (req, res) => {
 const videoByChannelId = async(req,res)=>{
     try
     {
-        const videos = await Video.find({channelId:req.params.channelId})
+        const videos = await Video.find({uploadedBy:req.params.channelId})
         res.status(200).json({
             videos
         })
