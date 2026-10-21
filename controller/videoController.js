@@ -190,13 +190,24 @@ const videoById = async (req, res) => {
         if (token) {
             const Token = token.split(" ")[1]
             const tokenData = await jwt.verify(Token, process.env.SEC_KEY)
-            console.log("Backend User ID:", tokenData.userId);
-            console.log("LikedBy:", videos.likedBy.map(id => id.toString()));
-            if (videos.dislikedBy.some(id => id.toString() === tokenData.userId)) {
-                dislikeStatus = true
-            } else if (videos.likedBy.some(id => id.toString() === tokenData.userId)) {
-                likeStatus = true
-            }
+            const userId = tokenData.userId.toString();
+
+            likeStatus = videos.likedBy.some(
+                id => id.toString() === userId
+            );
+
+            dislikeStatus = videos.dislikedBy.some(
+                id => id.toString() === userId
+            );
+
+            console.log("User ID:", userId);
+            console.log("Like status:", likeStatus);
+            console.log("Dislike status:", dislikeStatus);
+            // if (videos.dislikedBy.some(id => id.toString() === tokenData.userId)) {
+            //     dislikeStatus = true
+            // } else if (videos.likedBy.some(id => id.toString() === tokenData.userId)) {
+            //     likeStatus = true
+            // }
             if (videos.uploadedBy.subscribers.includes(tokenData.userId)) {
                 var subscribeStatus = true
             }
