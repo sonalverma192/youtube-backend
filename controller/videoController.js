@@ -69,7 +69,7 @@ const like = async (req, res) => {
             })
         }
 
-        if (video.likedBy.includes(tokenData.userId)) {
+        if (video.likedBy.some(id => id.toString() === tokenData.userId)) {
             video.likeCount -= 1
             video.likedBy = video.likedBy.filter(userId => userId.toString() !== tokenData.userId)
             await video.save()
@@ -80,7 +80,7 @@ const like = async (req, res) => {
             })
         }
 
-        else if (video.dislikedBy.includes(tokenData.userId)) {
+        else if (video.dislikedBy.some(id => id.toString() === tokenData.userId)) {
             video.dislikeCount -= 1
             video.dislikedBy = video.dislikedBy.filter(userId => userId.toString() !== tokenData.userId)
 
@@ -126,7 +126,7 @@ const dislike = async (req, res) => {
             })
         }
 
-        if (video.dislikedBy.includes(tokenData.userId)) {
+        if (video.dislikedBy.some(id => id.toString() === tokenData.userId)) {
             video.dislikeCount -= 1
             video.dislikedBy = video.dislikedBy.filter(userId => userId.toString() !== tokenData.userId)
             await video.save()
@@ -137,7 +137,7 @@ const dislike = async (req, res) => {
             })
         }
 
-        if (video.likedBy.includes(tokenData.userId)) {
+        if (video.likedBy.some(id => id.toString() === tokenData.userId)) {
             video.likeCount -= 1
             video.likedBy = video.likedBy.filter(userId => userId.toString() !== tokenData.userId)
 
