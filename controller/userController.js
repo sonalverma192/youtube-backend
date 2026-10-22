@@ -231,38 +231,90 @@ const channelInfo = async (req, res) => {
     }
 }
 
+
 const updateChannelDetails = async (req, res) => {
     try {
-        const token = req.headers.authorization.split(" ")[1]
-        const tokenData = await jwt.verify(token, process.env.SEC_KEY)
+        const token = req.headers.authorization.split(" ")[1];
+        const tokenData = jwt.verify(token, process.env.SEC_KEY);
 
-        const user = await User.findById(req.params.channelId)
+        const user = await User.findById(req.params.channelId);
 
-        if (req.body.password) {
-            const hash = await bcrypt.hash(req.body.oldPassword, 10)
-            const isMatch = await bcrypt.compare(user.password, hash)
-            if (isMatch) {
-                const password = await bcrypt.hash(req.body.password, 10)
-                user.password = password
-            }
+        if (!user) {
+            return res.status(404).json({
+                msg: "User not found"
+            });
         }
-        user.channelName = req.body.channelName
-        user.description = req.body.description
 
+        // Check user permission
+        if (tokenData.userId !== req.params.channelId) {
+            return res.status(403).json({
+                msg: "You have no permission to update this profile"
+            });
+        }
 
-        await user.save()
-        res.status(200).json({
-            msg: "channelInfo Updated",
-            user
-        })
+        // Password change logic
+        if (req.body.newPassword || req.body.oldPassword) {
+
+            if (!req.body.oldPassword || !req.body.newPassword) {
+                return res.status(400).json({
+                    msg: "Please enter both old and new passwords"
+                });
+            }
+
+            if (req.body.newPassword.length < 6) {
+                return res.status(400).json({
+                    msg: "New password must be at least 6 characters"
+                });
+            }
+
+            // Compare old password with database password
+            const isMatch = await bcrypt.compare(
+                req.body.oldPassword,
+                user.password
+            );
+
+            if (!isMatch) {
+                return res.status(400).json({
+                    msg: "Old password is incorrect"
+                });
+            }
+
+            // Hash and save new password
+            user.password = await bcrypt.hash(
+                req.body.newPassword,
+                10
+            );
+        }
+
+        // Update profile details
+        if (req.body.channelName !== undefined) {
+            user.channelName = req.body.channelName;
+        }
+
+        if (req.body.description !== undefined) {
+            user.description = req.body.description;
+        }
+
+        await user.save();
+
+        const updatedUser = user.toObject();
+        delete updatedUser.password;
+
+        return res.status(200).json({
+            msg: "Channel info updated successfully",
+            user: updatedUser
+        });
+
+    } catch (err) {
+        console.log(err);
+
+        return res.status(500).json({
+            msg: "Something went wrong",
+            error: err.message
+        });
     }
-    catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    }
-}
+};
+
 
 const logout = async (req, res) => {
     try {
